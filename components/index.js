@@ -1,8 +1,3 @@
-// const { TWEEN } = require("aframe");
-
-// /* global AFRAME */
-// require(TWEEN)
-
 if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
@@ -34,6 +29,7 @@ AFRAME.registerComponent('timer-countdown', {
   },
   endRun:function(){
     clearInterval(this.interval);
+    document.getElementById("time2").object3D.visible = false;
   }
 });
 
@@ -500,6 +496,5 @@ AFRAME.registerComponent('enemy', {
     this.stop();
     document.getElementById('startMessage').object3D.visible = true;
     document.getElementById("score2").object3D.visible = false;
-    document.getElementById("time2").object3D.visible = false;
   } 
 });
