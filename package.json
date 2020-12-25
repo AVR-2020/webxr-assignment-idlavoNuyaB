@@ -1,0 +1,85 @@
+{
+  "_from": "aframe-super-shooter-kit",
+  "_id": "aframe-super-shooter-kit@1.1.7",
+  "_inBundle": false,
+  "_integrity": "sha512-Q19yo2ZcI30ur51qD1zhzi94b22pc8kEjhL+kjrsG9igJZa9L1zCQ+DAI9v/7IbRR8Px22kvCzhWQ/Bj1ydhQw==",
+  "_location": "/aframe-super-shooter-kit",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "aframe-super-shooter-kit",
+    "name": "aframe-super-shooter-kit",
+    "escapedName": "aframe-super-shooter-kit",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/aframe-super-shooter-kit/-/aframe-super-shooter-kit-1.1.7.tgz",
+  "_shasum": "6a2a5bd4fea9a591ed7ba443adec6b6d4fa50a35",
+  "_spec": "aframe-super-shooter-kit",
+  "_where": "F:\\RVA\\FP Solo\\webxr-assignment-idlavoNuyaB",
+  "author": {
+    "name": "Supermedium",
+    "email": "team@supermedium.com"
+  },
+  "bugs": {
+    "url": "https://github.com/supermedium/aframe-super-shooter-kit/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "A-Frame kit of components for making a simple WebVR shooter minigame.",
+  "devDependencies": {
+    "aframe": "*",
+    "browserify": "^13.0.0",
+    "budo": "^8.2.2",
+    "ghpages": "^0.0.8",
+    "randomcolor": "^0.4.4",
+    "semistandard": "^8.0.0",
+    "shelljs": "^0.7.0",
+    "shx": "^0.1.1",
+    "snazzy": "^4.0.0",
+    "uglify-es": "github:mishoo/UglifyJS2#harmony"
+  },
+  "homepage": "https://github.com/supermedium/aframe-super-shooter-kit#readme",
+  "keywords": [
+    "aframe",
+    "aframe-component",
+    "aframe-vr",
+    "vr",
+    "webvr",
+    "shooter"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "aframe-super-shooter-kit",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/supermedium/aframe-super-shooter-kit.git"
+  },
+  "scripts": {
+    "build": "webpack index.js -o dist/aframe-super-shooter-kit.js",
+    "dev": "budo index.js:dist/aframe-super-shooter-kit.min.js --port 7000 --live --open",
+    "dist": "npm run build && uglifyjs dist/aframe-super-shooter-kit.js > dist/aframe-super-shooter-kit.min.js",
+    "ghpages": "ghpages",
+    "lint": "semistandard -v | snazzy",
+    "prepublish": "npm run dist",
+    "start": "npm run dev"
+  },
+  "semistandard": {
+    "globals": [
+      "AFRAME",
+      "THREE"
+    ],
+    "ignore": [
+      "examples/build.js",
+      "dist/**"
+    ]
+  },
+  "unpkg": "dist/aframe-super-shooter-kit.min.js",
+  "version": "1.1.7"
+}

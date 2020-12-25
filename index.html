@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Shooter</title>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <!-- Let's include a bunch of extra JS libs -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@4.2.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-proxy-event-component/dist/aframe-proxy-event-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-supercraft-loader@3.0.0/dist/aframe-supercraft-loader.min.js"></script>
+    <script src="https://unpkg.com/aframe-supercraft-thing@1.1.0/dist/aframe-supercraft-thing.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
+    <script src="components/enemy.js"></script>
+    <script src="components/index.js"></script>
+  </head>
+  <body>
+    <a-scene id="scene">
+      <a-assets>
+        <a-asset-item id="soundSong" src="sounds/song.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundEnemy1a" src="sounds/enemy1a.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundEnemy1b" src="sounds/enemy1b.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundEnemy1c" src="sounds/enemy1c.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundEnemy2" src="sounds/enemy2.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundEnemy3" src="sounds/enemy3.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundExplosion" src="sounds/explosion.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundShoot" src="sounds/shoot.ogg" response-type="arraybuffer"></a-asset-item>
+      </a-assets>
+  
+      <!-- Theme song, starts on `playmusic` game start event. -->
+      <a-entity id="music" sound="src: #soundSong; loop: true; on: playmusic"></a-entity>
+  
+      <!-- Explosion sound. -->
+      <a-entity id="commonExplosion" sound="src: #soundExplosion; poolSize: 15" position="0 1.6 0"></a-entity>
+  
+      <!-- Hidden Supercraft container of objects. We pick out objects using `supercraft-thing`. -->
+      <a-entity id="supercraftThings" supercraft-loader="name: probable-representative; includeEnvironment: false" visible="false"></a-entity>
+  
+      <!-- Trees, bushes, clouds created in Supercraft. -->
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing0; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing1; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing3; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing4; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing5; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing6; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing7; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing8; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing10; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing11; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing12; resetOrigin: false" obstacle></a-entity>
+      <a-entity supercraft-thing="from: #supercraftThings; name: thing13; resetOrigin: false" obstacle></a-entity>
+  
+      <!--
+        ENEMIES created in Supercraft.
+        Set them as aframe-super-shooter-kit `target`s (non-static, since they move).
+        Apply the `enemy` component.
+      -->
+      <a-entity id="enemy14" supercraft-thing="from: #supercraftThings; name: thing14" class="enemy" enemy="type:1" target="static: false">
+        <a-entity sound="src: #soundEnemy1a; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy15" supercraft-thing="from: #supercraftThings; name: thing15" class="enemy" enemy="type:2" target="static: false">
+        <a-entity sound="src: #soundEnemy2; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy16" supercraft-thing="from: #supercraftThings; name: thing16" class="enemy" enemy="type:4" target="static: false">
+        <a-entity sound="src: #soundEnemy3; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy18" supercraft-thing="from: #supercraftThings; name: thing18" class="enemy" enemy="type:1" target="static: false">
+        <a-entity sound="src: #soundEnemy1b; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy19" supercraft-thing="from: #supercraftThings; name: thing19" class="enemy" enemy="type:1" target="static: false">
+        <a-entity sound="src: #soundEnemy1c; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy20" supercraft-thing="from: #supercraftThings; name: thing20" class="enemy" enemy="type:1" target="static: false">
+        <a-entity sound="src: #soundEnemy1a; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy21" supercraft-thing="from: #supercraftThings; name: thing21" class="enemy" enemy="type:2" target="static: false">
+        <a-entity sound="src: #soundEnemy2; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy22" supercraft-thing="from: #supercraftThings; name: thing22" class="enemy" enemy="type:2" target="static: false">
+        <a-entity sound="src: #soundEnemy2; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy23" supercraft-thing="from: #supercraftThings; name: thing23" class="enemy" enemy="type:2" target="static: false">
+        <a-entity sound="src: #soundEnemy2; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy24" supercraft-thing="from: #supercraftThings; name: thing24" class="enemy" enemy="type:4" target="static: false">
+        <a-entity sound="src: #soundEnemy3; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy25" supercraft-thing="from: #supercraftThings; name: thing25" class="enemy" enemy="type:4" target="static: false">
+        <a-entity sound="src: #soundEnemy3; poolSize: 5"></a-entity>
+      </a-entity>
+      <a-entity id="enemy27" supercraft-thing="from: #supercraftThings; name: thing27" class="enemy" enemy="type:4" target="static: false">
+        <a-entity sound="src: #soundEnemy3; poolSize: 5"></a-entity>
+      </a-entity>
+  
+      <!--
+        EXPLOSIONS created in Supercraft.
+        Link them with enemies in the enemy component using ID.
+      -->
+      <a-entity id="enemy14expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy15expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy16expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy18expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy19expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy20expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy21expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy22expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy23expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy24expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy25expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+      <a-entity id="enemy27expl" supercraft-thing="from: #supercraftThings; name: thing31; resetOrigin: true; ignorePosition: true"></a-entity>
+  
+      <!-- aframe-super-shooter-kit `bullet` template. -->
+      <a-entity bullet="name: normal; speed: 30.0; poolSize: 20"
+                geometry="primitive: icosahedron; radius: 0.1;"
+                material="color: #FF7; emissiveIntensity: 0.5; emissive: #FF7"></a-entity>
+  
+      <!-- START message. Start game when shot at using `proxy-event` to message other entities. -->
+      <a-entity id="startMessage"
+                supercraft-thing="from: #supercraftThings; name: thing28"
+                position="2 0.3 -2.9"
+                rotation="0 90 0"
+                target
+                proxy-event__startenemies="event: die; to: .enemy; as: run"
+                proxy-event__playmusic="event: die; to: #music; as: playmusic"></a-entity>
+  
+      <!--
+        Right GUN controller built in Supercraft with
+        aframe-super-shooter-kit `shooter` component.
+      -->
+      <a-entity
+        id="rightGun"
+        vive-controls="hand: right; model: false;"
+        oculus-touch-controls="hand: right; model: false;"
+        daydream-controls="hand: right; model: false"
+        proxy-event__daydream="event: trackpaddown; to: #rightGun; as: triggerdown"
+        proxy-event__shoot="event: triggerdown; to: #rightGun; as: shoot"
+        proxy-event__shootsound="event: triggerdown; to: #soundShootRight; as: shoot"
+        shooter="bulletTypes: normal; activeBulletType: normal">
+        <a-entity supercraft-thing="from: #supercraftThings; name: thing30; resetOrigin: true; ignorePosition: true" rotation="0 5 0" position="0 0 -0.03"></a-entity>
+        <a-entity id="soundShootRight" sound="src: #soundShoot; poolSize: 10; on: shoot; volume: 0.6"></a-entity>
+      </a-entity>
+  
+      <!-- Left controller. -->
+      <a-entity
+        id="leftGun"
+        vive-controls="hand: left; model: false"
+        oculus-touch-controls="hand: left; model: false"
+        daydream-controls="hand: left; model: false"
+        proxy-event__daydream="event: trackpaddown; to: #leftGun; as: triggerdown"
+        proxy-event__shoot="event: triggerdown; to: #leftGun; as: shoot"
+        proxy-event__shootsound="event: triggerdown; to: #soundShootLeft; as: shoot"
+        shooter="bullets: normal; activeBulletType: normal">
+        <a-entity supercraft-thing="from: #supercraftThings; name: thing30; resetOrigin: true; ignorePosition: true" rotation="0 5 0" position="0 0 -0.03"></a-entity>
+        <a-entity id="soundShootLeft" sound="src: #soundShoot; poolSize: 10; on: shoot; volume: 0.6"></a-entity>
+      </a-entity>
+  
+      <a-camera shooter="bullets: normal; activeBulletType: normal" click-to-shoot wasd-controls-enabled="false">
+        <a-text id="time2" value="Time: 30" position="-0.2 0.7 -1" color="white" anchor="left" width="2" resize-text in-vr></a-text>
+        <a-text id="score2" value="Score: 0" position="-0.2 -0.7 -1" color="white" anchor="left" width="2" resize-text in-vr></a-text>
+      </a-camera>
+      <!-- Environment. -->
+      <a-entity environment="preset: forest; skyColor: #17acbd; horizonColor: #fbc173; lighting: point; lightPosition: -1.2 1 -0.55; fog: 0.799; flatShading: true; playArea: 0.89; ground: hills; groundYScale: 21.3; groundColor: #385f3c; groundColor2: #3f6943; dressing: stones; dressingAmount: 300; dressingColor: #576037; dressingScale: 0.13; dressingVariance: 0.08 0.01 0.1; dressingOnPlayArea: 1"></a-entity>
+      <a-entity light="color:#A2A5AF; intensity:0.1" position="-1.93 2.781 -2.322"></a-entity>
+    </a-scene>
+  
+</body>
+</html>
