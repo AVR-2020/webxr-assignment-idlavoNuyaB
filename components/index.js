@@ -9,16 +9,33 @@ if (typeof AFRAME === 'undefined') {
 
 let score = 0;
 let times = 30;
-function timer(){
-  if(document.getElementById('startMessage').object3D.visible == false){
-    if(times <= 0){
-      times = 1
+
+AFRAME.registerComponent('timer-countdown', {
+  init: function(){
+    var el = this.el;
+    this.message = document.getElementById('startMessage');
+    this.timer = document.getElementById('time2');
+    this.interval = null;
+    el.addEventListener('timer',this.run.bind(this));
+    el.emit('timer');
+  },
+  run:function(){
+    var countdown = this.countdown.bind(this);
+    this.interval = setInterval(countdown,1000);
+  },
+  countdown: function(){
+    if(this.message.object3D.visible == false){
+      if(times <= 0){
+        times = 1
+      }
+      times -= 1;
+      this.timer.setAttribute('value','Time: ' + times);
     }
-    times -= 1;
-    document.getElementById("time2").setAttribute('value','Time: ' + times);
+  },
+  endRun:function(){
+    clearInterval(this.interval);
   }
-}
-setInterval(timer,1000);
+});
 
 AFRAME.registerComponent('in-vr', {
   init: function(){
@@ -363,6 +380,7 @@ AFRAME.registerComponent('enemy', {
     el.addEventListener('run', this.run.bind(this));
     el.addEventListener('stop', this.stop.bind(this));
     el.addEventListener('hit', this.die.bind(this));
+    el.addEventListener('end',this.endRun.bind(this));
   },
 
   /**
@@ -377,8 +395,8 @@ AFRAME.registerComponent('enemy', {
     lift = this.data.type * 1.2;
     this.showingPos = this.hidingPos + lift;
     document.getElementById('startMessage').object3D.visible = false;
-    document.getElementById("score2").object3D.visible = true
-    document.getElementById("time2").object3D.visible = true
+    document.getElementById("score2").object3D.visible = true;
+    document.getElementById("time2").object3D.visible = true;
     this.attribute();
     this.appear();
   },
@@ -441,7 +459,6 @@ AFRAME.registerComponent('enemy', {
     var el = this.el;
     var scoreTitle = document.getElementById("score2");
     var timeTitle = document.getElementById("time2");
-    console.log(this.vulnerable);
     if(document.getElementById('startMessage').object3D.visible == false){
       if(this.vulnerable){
         score += 1;
@@ -475,19 +492,14 @@ AFRAME.registerComponent('enemy', {
         return;
       }
     }
-  }
+  },
+  endRun: function(){
+    var el = this.el;
+    el.object3D.visible = false;
+    el.object3D.position.y = this.hidingPos;
+    this.stop();
+    document.getElementById('startMessage').object3D.visible = true;
+    document.getElementById("score2").object3D.visible = false;
+    document.getElementById("time2").object3D.visible = false;
+  } 
 });
-
-// AFRAME.registerComponent('obstacle', {
-//   schema: {
-//     active: {default: true},
-//     static: {default: true},
-//   },
-
-//   init: function () {
-//     var el = this.el;
-//     el.addEventListener('object3dset', evt => {
-//       el.sceneEl.systems.bullet.registerTarget(this, this.data.static);
-//     });
-//   },
-// });
