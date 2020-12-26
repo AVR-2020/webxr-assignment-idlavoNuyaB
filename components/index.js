@@ -5,6 +5,20 @@ if (typeof AFRAME === 'undefined') {
 let score = 0;
 let times = 30;
 
+AFRAME.registerComponent('games', {
+  init: function(){
+    var el = this.el;
+    el.addEventListener('restart',this.restart.bind(this));
+    el.addEventListener('end',this.end.bind(this));
+  },
+  restart: function(){
+
+  },
+  end:function(){
+
+  }
+});
+
 AFRAME.registerComponent('timer-countdown', {
   init: function(){
     var el = this.el;
@@ -12,7 +26,7 @@ AFRAME.registerComponent('timer-countdown', {
     this.timer = document.getElementById('time2');
     this.interval = null;
     el.addEventListener('timer',this.run.bind(this));
-    el.emit('timer');
+    el.addEventListener('end',this.endRun.bind(this));
   },
   run:function(){
     var countdown = this.countdown.bind(this);
@@ -21,15 +35,25 @@ AFRAME.registerComponent('timer-countdown', {
   countdown: function(){
     if(this.message.object3D.visible == false){
       if(times <= 0){
-        times = 1
+        clearInterval(this.interval);
+        this.interval = null;
+        if(this.interval == null){
+          var run = this.endRun.bind(this);
+          times = 31;
+          let enemy = document.querySelectorAll('.enemy');
+          for(let i=0 ; i<enemy.length;i++){
+            enemy[i].emit('end');
+          }
+          run();
+        }
       }
       times -= 1;
       this.timer.setAttribute('value','Time: ' + times);
     }
   },
   endRun:function(){
-    clearInterval(this.interval);
-    document.getElementById("time2").object3D.visible = false;
+    this.timer.object3D.visible = false;
+    this.message.object3D.visible = true;
   }
 });
 
@@ -366,6 +390,7 @@ AFRAME.registerComponent('enemy', {
     this.timeout = null;             // Timeout for waiting for the next appearance.
     this.vulnerable = false;      // Cannot be shoot when it's hiding.
     this.showingPos = 0;
+    this.delay = 0;
     // Link with explosion object.
     // Hide explosion object and set scale depending on type of enemy (further == bigger).
     this.explosion = document.getElementById(`${this.el.id}expl`).object3D;
@@ -400,13 +425,10 @@ AFRAME.registerComponent('enemy', {
   attribute: function(){
     time = 500;
     var el = this.el;
-    this.vulnerable = true;
-
     el.setAttribute('animation__out',
       `property: position;,
       from: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
       to: ${el.object3D.position.x} ${this.showingPos} ${el.object3D.position.z};
-      delay: ${this.timeout};
       dur: ${time};
       easing: easeOutElastic;
       startEvents: out`);
@@ -424,28 +446,35 @@ AFRAME.registerComponent('enemy', {
 
   appear:function(){
     var el = this.el;
-    var attribut = this.attribute.bind(this);
-    el.addEventListener('animationcomplete__out',function(e){
-      this.vulnerable = true;
-      el.emit('in');
-    });
-
-    el.addEventListener('animationcomplete__in',function(e){
-      this.vulnerable = false;
-      this.timeout = setTimeout(attribut,
-        1000 + Math.floor(Math.random() * 3000));
-    });
+    var endAppear = this.endAppear.bind(this);
+    var endDisappear = this.endDisappear.bind(this);
+    el.addEventListener('animationcomplete__out',endAppear);
+    el.addEventListener('animationcomplete__in',endDisappear);
 
     this.el.querySelector('[sound]').components.sound.playSound();
+  },
+  endAppear:function(){
+    var el = this.el;
+    this.vulnerable = true;
+    el.emit('in');
+  },
+  endDisappear:function(){
+    var attribut = this.attribute.bind(this);
+    this.vulnerable = false;
+    this.delay = 1000 + Math.floor(Math.random() * 3000); 
+    this.timeout = setTimeout(attribut,this.delay);
   },
   /**
    * Stop tweens and timeouts.
    */
   stop: function () {
-    this.el.removeAttribute('animation__in');
-    this.el.removeAttribute('animation__out');
-    clearTimeout(this.timeout);
-    this.vulnerable = false;
+    clearTimeout(this.timeout)
+    this.timeout = null;
+    if(this.timeout == null){
+        this.el.removeAttribute('animation__in');
+        this.el.removeAttribute('animation__out');
+        this.vulnerable = false;  
+    }
   },
 
   /**
@@ -456,37 +485,33 @@ AFRAME.registerComponent('enemy', {
     var scoreTitle = document.getElementById("score2");
     var timeTitle = document.getElementById("time2");
     if(document.getElementById('startMessage').object3D.visible == false){
-      if(this.vulnerable){
-        score += 1;
-        times += 3;
-        timeTitle.setAttribute('value','Time: ' + times);
-        scoreTitle.setAttribute('value','Score: ' + score);
-        this.stop();
+      if(!this.vulnerable){return;}
+      score += 1;
+      times += 3;
+      timeTitle.setAttribute('value','Time: ' + times);
+      scoreTitle.setAttribute('value','Score: ' + score);
+      this.stop();
 
-        // Hide enemy, return it to hiding position.
-        el.object3D.visible = false;
-        el.object3D.position.y = this.hidingPos;
-    
-        // Play explosion sound.
-        document.getElementById('commonExplosion').components.sound.playSound();
-    
-        // Show explosion on the hit position and make it look to center of stage.
-        this.explosion.position.copy(this.el.components.target.lastBulletHit.position);
-        this.explosion.lookAt(0, 1.6, 0);
-        this.explosion.visible = true;
-    
-        // Wait 300 ms to hide explosion.
-        setTimeout(() => {
-          this.explosion.visible = false;
-          this.el.object3D.visible = true;
-          // After a random number of secs (2-5), appear again.
-          setTimeout(this.attribute.bind(this),
-                     2000 + Math.floor(Math.random() * 3000));
-        }, 300);
-      }
-      else{
-        return;
-      }
+      // Hide enemy, return it to hiding position.
+      el.object3D.visible = false;
+      el.object3D.position.y = this.hidingPos;
+  
+      // Play explosion sound.
+      document.getElementById('commonExplosion').components.sound.playSound();
+  
+      // Show explosion on the hit position and make it look to center of stage.
+      this.explosion.position.copy(this.el.components.target.lastBulletHit.position);
+      this.explosion.lookAt(0, 1.6, 0);
+      this.explosion.visible = true;
+  
+      // Wait 300 ms to hide explosion.
+      setTimeout(() => {
+        this.explosion.visible = false;
+        this.el.object3D.visible = true;
+        // After a random number of secs (2-5), appear again.
+        setTimeout(this.attribute.bind(this),
+                    2000 + Math.floor(Math.random() * 3000));
+      }, 300);
     }
   },
   endRun: function(){
@@ -496,5 +521,6 @@ AFRAME.registerComponent('enemy', {
     this.stop();
     document.getElementById('startMessage').object3D.visible = true;
     document.getElementById("score2").object3D.visible = false;
+    document.querySelector('#music').components.sound.stopSound();
   } 
 });

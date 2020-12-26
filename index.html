@@ -16,7 +16,7 @@
     <script src="components/index.js"></script>
   </head>
   <body>
-    <a-scene id="scene">
+    <a-scene id="scene" games>
       <a-assets>
         <a-asset-item id="soundSong" src="sounds/song.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item id="soundEnemy1a" src="sounds/enemy1a.ogg" response-type="arraybuffer"></a-asset-item>
@@ -122,6 +122,7 @@
                 rotation="0 90 0"
                 target
                 proxy-event__startenemies="event: die; to: .enemy; as: run"
+                proxy-event__starttimer="event: die; to: #time2; as: timer"
                 proxy-event__playmusic="event: die; to: #music; as: playmusic"></a-entity>
   
       <!--
