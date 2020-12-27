@@ -410,6 +410,7 @@ AFRAME.registerComponent('enemy', {
   run: function () {
     var lift;
     var el = this.el;
+    el.object3D.visible = true;
     // Save hidingPos (default position on the Supercraft site).
     this.hidingPos = el.object3D.position.y;
     // Depending the type of enemy, the further it is, the higher it has to rise.
@@ -423,7 +424,7 @@ AFRAME.registerComponent('enemy', {
   },
 
   attribute: function(){
-    time = 500;
+    var time = 500;
     var el = this.el;
     el.setAttribute('animation__out',
       `property: position;,
