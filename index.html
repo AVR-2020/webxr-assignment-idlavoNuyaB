@@ -13,10 +13,16 @@
     <script src="https://unpkg.com/aframe-supercraft-loader@3.0.0/dist/aframe-supercraft-loader.min.js"></script>
     <script src="https://unpkg.com/aframe-supercraft-thing@1.1.0/dist/aframe-supercraft-thing.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
-    <script src="components/index.js"></script>
+    <script src="https://rawgit.com/rdub80/aframe-gui/master/dist/aframe-gui.min.js"></script>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/firebase/8.2.1/firebase-app.min.js"></script>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/firebase/8.2.1/firebase-database.min.js"></script>
+    <script type="module" src="components/index.js"></script>
   </head>
   <body>
-    <a-scene id="scene" games>
+    <a-scene id="scene" firebase="apiKey: AIzaSyDgfoyuxJ5bKrrfGa-3FxyuIC3qqKkojNk;
+                                  authDomain: a-shooter-a877c-default-rtdb.firebaseapp.com;
+                                  databaseURL: https://a-shooter-a877c-default-rtdb.firebaseio.com/;
+                                  storageBucket: a-shooter-a877c-default-rtdb.appspot.com">
       <a-assets>
         <a-asset-item id="soundSong" src="asset/sounds/song.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item id="soundEnemy1a" src="asset/sounds/enemy1a.ogg" response-type="arraybuffer"></a-asset-item>
@@ -28,7 +34,20 @@
         <a-asset-item id="soundShoot" src="asset/sounds/shoot.ogg" response-type="arraybuffer"></a-asset-item>
         <img id="board" src="asset/img/wood.jpg">
       </a-assets>
-  
+      <a-entity id="title" text="value:A-Shooter; color:#9E3A20; shader: msdf; font:https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/syncopate/Syncopate-Regular.json;
+                "scale="10 10 10" position="3.7 2.7 -2"></a-entity>
+      <a-gui-flex-container id="highscore" flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="2" height="3"
+                            position="3 2.2 -2" rotation="0 -45 0" panel-color="#9E3A20">
+        <a-gui-label width="2" height="0.25" value="Leaderboard" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
+      </a-gui-flex-container>
+      <a-gui-flex-container id="howtoplay" flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="2" height="3"
+                            position="-3 2.2 -2" rotation="0 45 0" panel-color="#9E3A20">
+        <a-gui-label width="2" height="0.25" value="How to Play" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="Shoot the enemy within" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="certain time and get most" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="highest scores." opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 1.5 0"></a-gui-label>
+      </a-gui-flex-container>
+      
       <!-- Theme song, starts on `playmusic` game start event. -->
       <a-entity id="music" sound="src: #soundSong; loop: true; on: playmusic"></a-entity>
   

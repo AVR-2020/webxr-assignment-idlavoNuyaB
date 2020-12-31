@@ -5,17 +5,59 @@ if (typeof AFRAME === 'undefined') {
 let score = 0;
 let times = 30;
 
-AFRAME.registerComponent('games', {
+AFRAME.registerComponent('firebase', {
+  schema: {
+    apiKey: {type: 'string'},
+    authDomain: {type: 'string'},
+    databaseURL: {type: 'string'},
+    storageBucket: {type: 'string'}
+  },
   init: function(){
-    var el = this.el;
-    el.addEventListener('restart',this.restart.bind(this));
-    el.addEventListener('end',this.end.bind(this));
-  },
-  restart: function(){
+    var config = {
+      apiKey: this.data.apiKey,
+      authDomain: this.data.authDomain,
+      databaseURL: this.data.databaseURL,
+      storageBucket: this.data.storageBucket
+    };
+    if (!(config instanceof Object)) {
+      config = AFRAME.utils.styleParser.parse(config);
+    }
 
-  },
-  end:function(){
+    this.firebase = firebase.initializeApp(config);
+    this.database = firebase.database();
+    var highscore = document.getElementById('highscore');
+    this.data = this.database.ref('user/');
+    var i = 1;
+    this.data.on('value',function(snapshot){
+      snapshot.forEach(function(child){
+        if(child.val().username != undefined){
+          var entity = document.createElement('a-gui-label');
+          entity.setAttribute('height',0.25);
+          entity.setAttribute('width',2);
+          if(child.val().score < 100 && child.val().score > 9){
+            entity.setAttribute('value',child.key + "." + child.val().username + "                      " + child.val().score);
+          } else if(child.val().score >= 100 && i!=10){
+            entity.setAttribute('value',child.key + "." + child.val().username + "                     " + child.val().score);
+          } 
+          if(i==10){
+            if(child.val().score < 100 && child.val().score > 9){
+              entity.setAttribute('value',child.key + "." + child.val().username + "                    " + child.val().score);
+            } else if(child.val().score >= 100){
+              entity.setAttribute('value',child.key + "." + child.val().username + "                   " + child.val().score);
+            }
+          }
+          entity.setAttribute('opacity',0);
+          entity.setAttribute('font-family','Roboto');
+          entity.setAttribute('font-size','100px');
+          entity.setAttribute('font-color','#2BEB01');
+          highscore.appendChild(entity);  
+          i++;
+        }
+      })  
+    })
+    this.data.on('child_added',function(data){
 
+    });
   }
 });
 
@@ -54,6 +96,9 @@ AFRAME.registerComponent('timer-countdown', {
   endRun:function(){
     this.timer.object3D.visible = false;
     this.message.object3D.visible = true;
+    document.getElementById('title').object3D.visible = true;
+    document.getElementById('highscore').object3D.visible = true;
+    document.getElementById('howtoplay').object3D.visible = true;
   }
 });
 
@@ -416,7 +461,10 @@ AFRAME.registerComponent('enemy', {
     // Depending the type of enemy, the further it is, the higher it has to rise.
     lift = this.data.type * 1.2;
     this.showingPos = this.hidingPos + lift;
+    document.getElementById('title').object3D.visible = false;
     document.getElementById('startMessage').object3D.visible = false;
+    document.getElementById('highscore').object3D.visible = false;
+    document.getElementById('howtoplay').object3D.visible = false;
     document.getElementById("score2").object3D.visible = true;
     document.getElementById("time2").object3D.visible = true;
     this.attribute();
@@ -520,7 +568,6 @@ AFRAME.registerComponent('enemy', {
     el.object3D.visible = false;
     el.object3D.position.y = this.hidingPos;
     this.stop();
-    document.getElementById('startMessage').object3D.visible = true;
     document.getElementById("score2").object3D.visible = false;
     document.querySelector('#music').components.sound.stopSound();
   } 
