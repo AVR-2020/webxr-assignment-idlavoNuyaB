@@ -2,8 +2,9 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-let score = 0;
-let times = 30;
+let score = 129;
+let times = 5;
+document.getElementById('afterplay').object3D.visible = false;
 
 AFRAME.registerComponent('firebase', {
   schema: {
@@ -13,6 +14,7 @@ AFRAME.registerComponent('firebase', {
     storageBucket: {type: 'string'}
   },
   init: function(){
+    var el = this.el;
     var config = {
       apiKey: this.data.apiKey,
       authDomain: this.data.authDomain,
@@ -22,42 +24,161 @@ AFRAME.registerComponent('firebase', {
     if (!(config instanceof Object)) {
       config = AFRAME.utils.styleParser.parse(config);
     }
-
+    this.start = false;
+    this.message = document.getElementById('startMessage');
     this.firebase = firebase.initializeApp(config);
     this.database = firebase.database();
-    var highscore = document.getElementById('highscore');
-    this.data = this.database.ref('user/');
-    var i = 1;
-    this.data.on('value',function(snapshot){
+    this.entities = {};
+    this.highscore = document.getElementById('highscore');
+    this.data = this.database.ref('user/').orderByChild('score');
+    var usernames = [];
+    var scores = [];
+    var key = [];
+    var add = this.addEntity.bind(this);
+    var keys = this.key.bind(this);
+    var scoress = this.scores.bind(this);
+    var usernamess = this.username.bind(this);
+    this.data.once('value',function(snapshot){
       snapshot.forEach(function(child){
         if(child.val().username != undefined){
-          var entity = document.createElement('a-gui-label');
-          entity.setAttribute('height',0.25);
-          entity.setAttribute('width',2);
-          if(child.val().score < 100 && child.val().score > 9){
-            entity.setAttribute('value',child.key + "." + child.val().username + "                      " + child.val().score);
-          } else if(child.val().score >= 100 && i!=10){
-            entity.setAttribute('value',child.key + "." + child.val().username + "                     " + child.val().score);
-          } 
-          if(i==10){
-            if(child.val().score < 100 && child.val().score > 9){
-              entity.setAttribute('value',child.key + "." + child.val().username + "                    " + child.val().score);
-            } else if(child.val().score >= 100){
-              entity.setAttribute('value',child.key + "." + child.val().username + "                   " + child.val().score);
-            }
-          }
-          entity.setAttribute('opacity',0);
-          entity.setAttribute('font-family','Roboto');
-          entity.setAttribute('font-size','100px');
-          entity.setAttribute('font-color','#2BEB01');
-          highscore.appendChild(entity);  
-          i++;
+          usernames.unshift(child.val().username);
+          scores.unshift(child.val().score);
+          key.unshift(child.key);
         }
       })  
+      add(usernames,scores,key);
     })
-    this.data.on('child_added',function(data){
-
-    });
+    this.usernames = usernames;
+    this.scores = scores;
+    this.key = key;
+    this.database.ref('user').on('child_added',function(snapshot){
+      add(usernamess(),scoress(),keys());
+    })
+    el.addEventListener('insert',this.insert.bind(this));
+  },
+  username: function(){
+    return this.usernames;
+  },
+  scores: function(){
+    return this.scores;
+  },
+  key: function(){
+    return this.key;
+  },
+  addEntity: function(usernames,scores,key){
+    for(var j = 0; j< usernames.length; j++){
+      if(this.start == true){
+        var entity = document.createElement('a-gui-label');
+        this.entities[key[j]] = entity;
+        entity.setAttribute('height',0.25);
+        entity.setAttribute('width',2);
+        entity.setAttribute('opacity',0);
+        entity.setAttribute('font-family','Roboto');
+        entity.setAttribute('font-size','100px');
+        entity.setAttribute('font-color','#2BEB01');
+        var i = j+1;
+        if(scores[j] < 100 && scores[j] > 9 && j<11 && j!=10){
+          entity.setAttribute('value',i + "." + usernames[j] + "                      " + scores[j]);
+        } else if(scores[j] >= 100 && j!=10 && j<11){
+          entity.setAttribute('value',i + "." + usernames[j] + "                     " + scores[j]);
+        } 
+        if(j==9){
+          if(scores[j] < 100 && scores[j] > 9){
+            entity.setAttribute('value',i + "." + usernames[j] + "                    " + scores[j]);
+          } else if(scores[j] >= 100){
+            entity.setAttribute('value',i + "." + usernames[j] + "                   " + scores[j]);
+          }
+        }
+        this.highscore.appendChild(this.entities[key[j]]);  
+      } else if(this.start == false){
+        var entity = document.createElement('a-gui-label');
+        this.entities[key[j]] = entity;
+        entity.setAttribute('height',0.25);
+        entity.setAttribute('width',2);
+        var i = j+1;
+        if(scores[j] < 100 && scores[j] > 9 && j<11 && j!=10){
+          entity.setAttribute('value',i + "." + usernames[j] + "                      " + scores[j]);
+        } else if(scores[j] >= 100 && j!=10 && j<11){
+          entity.setAttribute('value',i + "." + usernames[j] + "                     " + scores[j]);
+        } 
+        if(j==9){
+          if(scores[j] < 100 && scores[j] > 9){
+            entity.setAttribute('value',i + "." + usernames[j] + "                    " + scores[j]);
+          } else if(scores[j] >= 100){
+            entity.setAttribute('value',i + "." + usernames[j] + "                   " + scores[j]);
+          }
+        }
+        entity.setAttribute('opacity',0);
+        entity.setAttribute('font-family','Roboto');
+        entity.setAttribute('font-size','100px');
+        entity.setAttribute('font-color','#2BEB01');
+        this.highscore.appendChild(entity);  
+        if(i==10){
+          this.start = true;
+          return;
+        }
+      }
+    }
+  },
+  insert: function(){
+    this.message.object3D.visible = true;
+    document.getElementById('title').object3D.visible = true;
+    document.getElementById('highscore').object3D.visible = true;
+    document.getElementById('howtoplay').object3D.visible = true;
+    var user = {
+      username: "BNS",
+      score: score
+    }
+    var position = 0;
+    for(var j = 0; j < this.usernames.length; j++){
+      var entity = this.entities[this.key[j]];
+      if (!entity) { return; }
+      this.highscore.removeChild(entity);      
+    }
+    for(var j = 0; j < this.usernames.length; j++){
+      if(this.scores[j]<score){
+        for(var i = j; i < this.scores.length; i++){
+          if(this.scores[j]>this.scores[i]){
+            if(i==9){
+              this.database.ref('user/' + this.key[i]).remove();
+            } 
+          } 
+        }
+        position = j;
+        delete this.entities[this.key[9]];
+        this.key.pop();
+        this.usernames.pop();
+        this.scores.pop();
+        score = 0;
+        document.getElementById('score2').setAttribute('value','Score: ' + score);
+        var insert = this.database.ref('user').push();
+        this.key.splice(position,0,insert.key);
+        this.usernames.splice(position,0,user.username);
+        this.scores.splice(position,0,user.score);
+        var entity = document.createElement('a-gui-label');
+        this.entities[this.key[position]] = entity;
+        entity.setAttribute('height',0.25);
+        entity.setAttribute('width',2);
+        var i = position+1;
+        if(this.scores[position] < 100 && this.scores[position] > 9 && position<11 && position!=10){
+          entity.setAttribute('value',i + "." + this.usernames[position] + "                      " + this.scores[position]);
+        } else if(this.scores[position] >= 100 && position!=10 && position<11){
+          entity.setAttribute('value',i + "." + this.usernames[position] + "                     " + this.scores[position]);
+        } 
+        if(position==9){
+          if(this.scores[position] < 100 && this.scores[position] > 9){
+            entity.setAttribute('value',i + "." + this.usernames[position] + "                    " + this.scores[position]);
+          } else if(this.scores[position] >= 100){
+            entity.setAttribute('value',i + "." + this.usernames[position] + "                   " + this.scores[position]);
+          }
+        }
+        entity.setAttribute('opacity',0);
+        entity.setAttribute('font-family','Roboto');
+        entity.setAttribute('font-size','100px');
+        entity.setAttribute('font-color','#2BEB01');
+        insert.set(user);
+      }  
+    }
   }
 });
 
@@ -95,10 +216,9 @@ AFRAME.registerComponent('timer-countdown', {
   },
   endRun:function(){
     this.timer.object3D.visible = false;
-    this.message.object3D.visible = true;
-    document.getElementById('title').object3D.visible = true;
-    document.getElementById('highscore').object3D.visible = true;
-    document.getElementById('howtoplay').object3D.visible = true;
+    document.getElementById('afterplay').object3D.visible = true;
+    var scene = document.getElementById('scene');
+    scene.emit('insert');
   }
 });
 
