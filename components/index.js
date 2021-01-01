@@ -2,8 +2,8 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-let score = 129;
-let times = 5;
+let score = 0;
+let times = 30;
 document.getElementById('afterplay').object3D.visible = false;
 
 AFRAME.registerComponent('firebase', {
@@ -131,9 +131,11 @@ AFRAME.registerComponent('firebase', {
     }
     var position = 0;
     for(var j = 0; j < this.usernames.length; j++){
-      var entity = this.entities[this.key[j]];
-      if (!entity) { return; }
-      this.highscore.removeChild(entity);      
+      if(this.scores[9] < score){
+        var entity = this.entities[this.key[j]];
+        if (!entity) { return; }
+        this.highscore.removeChild(entity);      
+      }
     }
     for(var j = 0; j < this.usernames.length; j++){
       if(this.scores[j]<score){
