@@ -136,6 +136,8 @@ AFRAME.registerComponent('firebase', {
       }else {
         keyboard.setAttribute('super-keyboard','show:false;');
         var fail = true;
+        score = 0;
+        document.getElementById('score2').setAttribute('value','Score: ' + score);
       }
     }
     var ui = this.makeUI.bind(this);
@@ -173,6 +175,7 @@ AFRAME.registerComponent('firebase', {
         this.key.splice(position,0,insert.key);
         if(fail == true){
           var name = "RRR"
+          score = 0;
         } else if (fail == false){
           var name = event.detail.value;
         }
@@ -194,7 +197,6 @@ AFRAME.registerComponent('firebase', {
         break;
       }
     }
-
   },
   makeUI: function(key,position,user){
     this.usernames.splice(position,0,user.username);
