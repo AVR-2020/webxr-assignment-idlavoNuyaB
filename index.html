@@ -33,6 +33,7 @@
         <a-asset-item id="soundEnemy3" src="asset/sounds/enemy3.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item id="soundExplosion" src="asset/sounds/explosion.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item id="soundShoot" src="asset/sounds/shoot.ogg" response-type="arraybuffer"></a-asset-item>
+        <a-asset-item id="soundTheme" src="asset/sounds/forest.ogg" response-type="arraybuffer"></a-asset-item>
       </a-assets>
 
       <a-entity id="title" text="value:A-Shooter; color:#9E3A20; shader: msdf; font:https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/syncopate/Syncopate-Regular.json;
@@ -51,6 +52,8 @@
       
       <!-- Theme song, starts on `playmusic` game start event. -->
       <a-entity id="music" sound="src: #soundSong; loop: true; on: playmusic"></a-entity>
+
+      <a-entity id="musictheme" sound="src: #soundTheme; loop: true; autoplay:true;"></a-entity>
   
       <!-- Explosion sound. -->
       <a-entity id="commonExplosion" sound="src: #soundExplosion; poolSize: 15" position="0 1.6 0"></a-entity>
@@ -189,14 +192,14 @@
           position="0.07 -0.1 -0.15"
           rotation="0 5 0"
           click-to-shoot>
-          <a-entity supercraft-thing="from: #supercraftThings; name: thing30; resetOrigin: true; ignorePosition: true" rotation="0 5 0" position="0 0 -0.03"></a-entity>
+          <a-entity supercraft-thing="from: #supercraftThings; name: thing30; resetOrigin: true; ignorePosition: true" rotation="0 5 0" position="0 0 -0.03" scale="0.5 0.5 0.5"></a-entity>
           <a-entity id="soundShoot" sound="src: #soundShoot; poolSize: 10; on: shoot; volume: 0.6"></a-entity>
         </a-entity>
         <a-text id="time2" value="Time: 30" position="-0.2 0.7 -1" color="white" anchor="left" width="2" resize-text in-vr timer-countdown></a-text>
         <a-text id="score2" value="Score: 0" position="-0.2 -0.7 -1" color="white" anchor="left" width="2" resize-text in-vr></a-text>
       </a-entity>
       <!-- Environment. -->
-      <a-entity environment="preset: forest; skyColor: #17acbd; horizonColor: #fbc173; lighting: point; lightPosition: -1.2 1 -0.55; fog: 0.799; flatShading: true; playArea: 0.89; ground: hills; groundYScale: 21.3; groundColor: #385f3c; groundColor2: #3f6943; dressing: stones; dressingAmount: 300; dressingColor: #576037; dressingScale: 0.13; dressingVariance: 0.08 0.01 0.1; dressingOnPlayArea: 1"></a-entity>
+      <a-entity environment="preset: forest; skyColor: #c9e9f6; horizonColor: #45b3e0; lighting: point; lightPosition: -1.2 1 -0.55; fog: 0.799; flatShading: true; playArea: 0.89; ground: hills; groundYScale: 21.3; groundColor: #385f3c; groundColor2: #3f6943; dressing: stones; dressingAmount: 300; dressingColor: #95948B; dressingScale: 0.5; dressingVariance: 0.08 0.01 0.1; dressingOnPlayArea: 1"></a-entity>
       <a-entity light="color:#A2A5AF; intensity:0.1" position="-1.93 2.781 -2.322"></a-entity>
       <a-entity id="keyboard" super-keyboard="hand: #gun; imagePath:asset/images/; maxLength:3; filters:allupper; font:roboto; show:false;" position="0 1.076 -0.5" rotation="-30 0 0"></a-entity>
     </a-scene>

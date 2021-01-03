@@ -231,6 +231,8 @@ AFRAME.registerComponent('timer-countdown', {
     this.message = document.getElementById('startMessage');
     this.timer = document.getElementById('time2');
     this.interval = null;
+    this.scaling = 1;
+    this.adder = 1;
     el.addEventListener('timer',this.run.bind(this));
     el.addEventListener('end',this.endRun.bind(this));
   },
@@ -253,7 +255,24 @@ AFRAME.registerComponent('timer-countdown', {
           run();
         }
       }
-      times -= 1;
+      if(times >= 60){
+        times == 45;
+      }
+      if(score >= 50 * this.scaling){
+        if(score == 50 * this.scaling){
+          this.scaling = this.scaling + this.adder;
+        }
+        console.log(this.scaling);
+        times -= this.scaling;
+      } else {
+        if(score == 13){
+          times -= 6;
+          if(times <= 0){
+            times = 1;
+          }
+        }
+        times -= this.scaling;
+      }
       this.timer.setAttribute('value','Time: ' + times);
     }
   },
@@ -625,6 +644,7 @@ AFRAME.registerComponent('enemy', {
     this.vulnerable = false;      // Cannot be shoot when it's hiding.
     this.showingPos = 0;
     this.delay = 0;
+    this.random = Math.floor((Math.random()*2)+1);
     // Link with explosion object.
     // Hide explosion object and set scale depending on type of enemy (further == bigger).
     this.explosion = document.getElementById(`${this.el.id}expl`).object3D;
@@ -661,9 +681,17 @@ AFRAME.registerComponent('enemy', {
   },
 
   attribute: function(){
+    var lift;
     var time = 500;
     var el = this.el;
-    el.setAttribute('animation__out',
+    lift = this.data.type * 1.2;
+    if(this.data.type == 4){
+      if(this.random == 1){
+        this.showingPos = this.hidingPos + lift;
+      } else {
+        this.showingPos = this.hidingPos - lift;
+      }
+      el.setAttribute('animation__out',
       `property: position;,
       from: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
       to: ${el.object3D.position.x} ${this.showingPos} ${el.object3D.position.z};
@@ -679,6 +707,25 @@ AFRAME.registerComponent('enemy', {
       delay: 1000;
       easing: easeOutCubic;
       startEvents: in`);
+      this.random = Math.floor((Math.random()*2)+1);
+    } else {
+      el.setAttribute('animation__out',
+      `property: position;,
+      from: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
+      to: ${el.object3D.position.x} ${this.showingPos} ${el.object3D.position.z};
+      dur: ${time};
+      easing: easeOutElastic;
+      startEvents: out`);
+
+    el.setAttribute('animation__in',
+      `property: position;,
+      from: ${el.object3D.position.x} ${this.showingPos} ${el.object3D.position.z};
+      to: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
+      dur: 200;
+      delay: 1000;
+      easing: easeOutCubic;
+      startEvents: in`);
+    }
     el.emit('out');
   },
 
@@ -724,6 +771,9 @@ AFRAME.registerComponent('enemy', {
     var timeTitle = document.getElementById("time2");
     if(document.getElementById('startMessage').object3D.visible == false){
       if(!this.vulnerable){return;}
+      if(this.data.type == 4){
+        score += 1
+      }
       score += 1;
       times += 3;
       timeTitle.setAttribute('value','Time: ' + times);
