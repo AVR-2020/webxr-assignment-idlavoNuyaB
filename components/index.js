@@ -2,8 +2,8 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-let score = 13;
-let times = 5;
+let score = 0;
+let times = 30;
 
 AFRAME.registerComponent('firebase', {
   schema: {
