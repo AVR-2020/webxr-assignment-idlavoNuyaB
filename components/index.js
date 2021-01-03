@@ -2,9 +2,8 @@ if (typeof AFRAME === 'undefined') {
   throw new Error('Component attempted to register before AFRAME was available.');
 }
 
-let score = 0;
-let times = 30;
-document.getElementById('afterplay').object3D.visible = false;
+let score = 13;
+let times = 5;
 
 AFRAME.registerComponent('firebase', {
   schema: {
@@ -75,7 +74,7 @@ AFRAME.registerComponent('firebase', {
         entity.setAttribute('opacity',0);
         entity.setAttribute('font-family','Roboto');
         entity.setAttribute('font-size','100px');
-        entity.setAttribute('font-color','#2BEB01');
+        entity.setAttribute('font-color','#FFFFFF');
         var i = j+1;
         if(scores[j] < 100 && scores[j] > 9 && j<11 && j!=10){
           entity.setAttribute('value',i + "." + usernames[j] + "                      " + scores[j]);
@@ -111,7 +110,7 @@ AFRAME.registerComponent('firebase', {
         entity.setAttribute('opacity',0);
         entity.setAttribute('font-family','Roboto');
         entity.setAttribute('font-size','100px');
-        entity.setAttribute('font-color','#2BEB01');
+        entity.setAttribute('font-color','#FFFFFF');
         this.highscore.appendChild(entity);  
         if(i==10){
           this.start = true;
@@ -121,66 +120,106 @@ AFRAME.registerComponent('firebase', {
     }
   },
   insert: function(){
-    this.message.object3D.visible = true;
-    document.getElementById('title').object3D.visible = true;
-    document.getElementById('highscore').object3D.visible = true;
-    document.getElementById('howtoplay').object3D.visible = true;
-    var user = {
-      username: "BNS",
-      score: score
-    }
+    var highscore = document.getElementById('highscore')
+    highscore.object3D.visible = true;
+    highscore.setAttribute('position','0 2.2 -2.5')
+    highscore.setAttribute('rotation','0 0 0');
+    var keyboard = document.getElementById('keyboard');
     var position = 0;
     for(var j = 0; j < this.usernames.length; j++){
       if(this.scores[9] < score){
+        keyboard.setAttribute('super-keyboard','show:true;');
         var entity = this.entities[this.key[j]];
         if (!entity) { return; }
-        this.highscore.removeChild(entity);      
+        this.highscore.removeChild(entity);  
+        var fail = false;    
+      }else {
+        keyboard.setAttribute('super-keyboard','show:false;');
+        var fail = true;
       }
     }
+    var ui = this.makeUI.bind(this);
+    var check = this.checkScore.bind(this);
+    var start = this.message;
+    keyboard.addEventListener('superkeyboardinput',function(event){
+      check(position,ui,start,event,fail)
+    });
+    if(fail){
+      setTimeout(function () {
+        highscore.setAttribute('position','3 2.2 -2')
+        highscore.setAttribute('rotation','0 -45 0');
+        start.object3D.visible = true;
+        document.getElementById('title').object3D.visible = true;
+        document.getElementById('howtoplay').object3D.visible = true;  
+      },2000)
+    }
+  },
+  checkScore: function(position,ui,start,event,fail){
     for(var j = 0; j < this.usernames.length; j++){
       if(this.scores[j]<score){
         for(var i = j; i < this.scores.length; i++){
-          if(this.scores[j]>this.scores[i]){
+          if(this.scores[j]>=this.scores[i]){
             if(i==9){
               this.database.ref('user/' + this.key[i]).remove();
             } 
           } 
         }
-        position = j;
         delete this.entities[this.key[9]];
         this.key.pop();
         this.usernames.pop();
         this.scores.pop();
-        score = 0;
-        document.getElementById('score2').setAttribute('value','Score: ' + score);
+        position = j;
         var insert = this.database.ref('user').push();
         this.key.splice(position,0,insert.key);
-        this.usernames.splice(position,0,user.username);
-        this.scores.splice(position,0,user.score);
-        var entity = document.createElement('a-gui-label');
-        this.entities[this.key[position]] = entity;
-        entity.setAttribute('height',0.25);
-        entity.setAttribute('width',2);
-        var i = position+1;
-        if(this.scores[position] < 100 && this.scores[position] > 9 && position<11 && position!=10){
-          entity.setAttribute('value',i + "." + this.usernames[position] + "                      " + this.scores[position]);
-        } else if(this.scores[position] >= 100 && position!=10 && position<11){
-          entity.setAttribute('value',i + "." + this.usernames[position] + "                     " + this.scores[position]);
-        } 
-        if(position==9){
-          if(this.scores[position] < 100 && this.scores[position] > 9){
-            entity.setAttribute('value',i + "." + this.usernames[position] + "                    " + this.scores[position]);
-          } else if(this.scores[position] >= 100){
-            entity.setAttribute('value',i + "." + this.usernames[position] + "                   " + this.scores[position]);
-          }
+        if(fail == true){
+          var name = "RRR"
+        } else if (fail == false){
+          var name = event.detail.value;
         }
-        entity.setAttribute('opacity',0);
-        entity.setAttribute('font-family','Roboto');
-        entity.setAttribute('font-size','100px');
-        entity.setAttribute('font-color','#2BEB01');
+        var user = {
+          username: name,
+          score: score
+        }
+        ui(insert.key,position,user);
         insert.set(user);
-      }  
+        score = 0;
+        document.getElementById('score2').setAttribute('value','Score: ' + score);
+        setTimeout(function () {
+          highscore.setAttribute('position','3 2.2 -2')
+          highscore.setAttribute('rotation','0 -45 0');
+          start.object3D.visible = true;
+          document.getElementById('title').object3D.visible = true;
+          document.getElementById('howtoplay').object3D.visible = true;  
+        },2000)
+        break;
+      }
     }
+
+  },
+  makeUI: function(key,position,user){
+    this.usernames.splice(position,0,user.username);
+    this.scores.splice(position,0,user.score);
+    var entity = document.createElement('a-gui-label');
+    this.entities[key] = entity;
+    entity.setAttribute('height',0.25);
+    entity.setAttribute('width',2);
+    var i = position+1;
+    if(this.scores[position] < 100 && this.scores[position] > 9 && position<11 && position!=10){
+      entity.setAttribute('value',i + "." + this.usernames[position] + "                      " + this.scores[position]);
+    } else if(this.scores[position] >= 100 && position!=10 && position<11){
+      entity.setAttribute('value',i + "." + this.usernames[position] + "                     " + this.scores[position]);
+    } 
+    if(position==9){
+      if(this.scores[position] < 100 && this.scores[position] > 9){
+        entity.setAttribute('value',i + "." + this.usernames[position] + "                    " + this.scores[position]);
+      } else if(this.scores[position] >= 100){
+        entity.setAttribute('value',i + "." + this.usernames[position] + "                   " + this.scores[position]);
+      }
+    }
+    entity.setAttribute('opacity',0);
+    entity.setAttribute('font-family','Roboto');
+    entity.setAttribute('font-size','100px');
+    entity.setAttribute('font-color','#2BEB01');
   }
 });
 
@@ -218,7 +257,6 @@ AFRAME.registerComponent('timer-countdown', {
   },
   endRun:function(){
     this.timer.object3D.visible = false;
-    document.getElementById('afterplay').object3D.visible = true;
     var scene = document.getElementById('scene');
     scene.emit('insert');
   }
@@ -229,13 +267,41 @@ AFRAME.registerComponent('in-vr', {
     var vr = document.getElementById('scene');
     var scoreTitle = document.getElementById("score2");
     var timeTitle = document.getElementById("time2");
+    var rightGun = document.getElementById("rightGun");
+    var leftGun = document.getElementById("leftGun");
+    var gun = document.getElementById("gun");
+    leftGun.object3D.visible = false;
+    rightGun.object3D.visible = false;
     vr.addEventListener('enter-vr', function() {
       timeTitle.setAttribute('position','-0.2 0.9 -1');
       scoreTitle.setAttribute('position','-0.2 -0.9 -1');
+      leftGun.object3D.visible = true;
+      rightGun.object3D.visible = true;
+      gun.object3D.visible = false;
+      var keyboard = document.getElementById("keyboard");
+      var entity = document.createElement('a-entity');
+      keyboard.parentNode.removeChild(keyboard);
+      entity.setAttribute('id','keyboard');
+      entity.setAttribute('position','0 1.076 -0.5');
+      entity.setAttribute('rotation','-30 0 0');
+      entity.setAttribute('super-keyboard','hand: #rightGun; imagePath:asset/images/; maxLength:3; filters:allupper; font:roboto; show:false;');
+      vr.appendChild(entity);
     })
     vr.addEventListener('exit-vr', function() {
       timeTitle.setAttribute('position','-0.2 0.7 -1');
       scoreTitle.setAttribute('position','-0.2 -0.7 -1');
+      leftGun.object3D.visible = false;
+      rightGun.object3D.visible = false;
+      gun.object3D.visible = true;
+      gun.setAttribute('position','0.07 -0.1 -0.15');
+      var keyboard = document.getElementById("keyboard");
+      var entity = document.createElement('a-entity');
+      keyboard.parentNode.removeChild(keyboard);
+      entity.setAttribute('id','keyboard');
+      entity.setAttribute('position','0 1.076 -0.5');
+      entity.setAttribute('rotation','-30 0 0');
+      entity.setAttribute('super-keyboard','hand: #gun; imagePath:asset/images/; maxLength:3; filters:allupper; font:roboto; show:false;');
+      vr.appendChild(entity);
     })
     if(document.getElementById('startMessage').object3D.visible == true){
       scoreTitle.object3D.visible = false
@@ -532,7 +598,6 @@ AFRAME.registerComponent('target', {
     if (!this.data.active) { return; }
     this.lastBulletHit = bullet;
     this.healthPoints -= bullet.damagePoints;
-    // console.log(this.el.id)
     if (this.healthPoints <= 0) { this.el.emit('die'); }
   }
 });

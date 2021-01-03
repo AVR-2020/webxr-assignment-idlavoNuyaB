@@ -17,6 +17,7 @@
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/firebase/8.2.1/firebase-app.min.js"></script>
     <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/firebase/8.2.1/firebase-database.min.js"></script>
     <script type="module" src="components/index.js"></script>
+    <script src="dist/aframe-keyboard.js"></script>
   </head>
   <body>
     <a-scene id="scene" firebase="apiKey: AIzaSyDgfoyuxJ5bKrrfGa-3FxyuIC3qqKkojNk;
@@ -32,24 +33,20 @@
         <a-asset-item id="soundEnemy3" src="asset/sounds/enemy3.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item id="soundExplosion" src="asset/sounds/explosion.ogg" response-type="arraybuffer"></a-asset-item>
         <a-asset-item id="soundShoot" src="asset/sounds/shoot.ogg" response-type="arraybuffer"></a-asset-item>
-        <img id="board" src="asset/img/wood.jpg">
       </a-assets>
+
       <a-entity id="title" text="value:A-Shooter; color:#9E3A20; shader: msdf; font:https://raw.githubusercontent.com/etiennepinchon/aframe-fonts/master/fonts/syncopate/Syncopate-Regular.json;
                 "scale="10 10 10" position="3.7 2.7 -2"></a-entity>
       <a-gui-flex-container id="highscore" flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="2" height="3"
                             position="3 2.2 -2" rotation="0 -45 0" panel-color="#9E3A20">
-        <a-gui-label width="2" height="0.25" value="Leaderboard" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="Leaderboard" opacity="0" font-family="Roboto" font-color="#FFFFFF" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
       </a-gui-flex-container>
       <a-gui-flex-container id="howtoplay" flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="2" height="3"
                             position="-3 2.2 -2" rotation="0 45 0" panel-color="#9E3A20">
-        <a-gui-label width="2" height="0.25" value="How to Play" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
-        <a-gui-label width="2" height="0.25" value="Shoot the enemy within" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px"></a-gui-label>
-        <a-gui-label width="2" height="0.25" value="certain time and get most" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px"></a-gui-label>
-        <a-gui-label width="2" height="0.25" value="highest scores." opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 1.5 0"></a-gui-label>
-      </a-gui-flex-container>
-      <a-gui-flex-container id="afterplay" flex-direction="column" justify-content="center" align-items="normal" component-padding="0.1" opacity="0.7" width="2" height="3"
-                            position="0 2.2 -2.5" rotation="0 0 0" panel-color="#9E3A20">
-        <a-gui-label width="2" height="0.25" value="Leaderboard" opacity="0" font-family="Roboto" font-color="#2BEB01" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="How to Play" opacity="0" font-family="Roboto" font-color="#FFFFFF" font-size="100px" margin="0 0 0.2 0"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="Shoot the enemy within" opacity="0" font-family="Roboto" font-color="#FFFFFF" font-size="100px"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="certain time and get most" opacity="0" font-family="Roboto" font-color="#FFFFFF" font-size="100px"></a-gui-label>
+        <a-gui-label width="2" height="0.25" value="highest scores." opacity="0" font-family="Roboto" font-color="#FFFFFF" font-size="100px" margin="0 0 1.5 0"></a-gui-label>
       </a-gui-flex-container>
       
       <!-- Theme song, starts on `playmusic` game start event. -->
@@ -180,13 +177,28 @@
         <a-entity id="soundShootLeft" sound="src: #soundShoot; poolSize: 10; on: shoot; volume: 0.6"></a-entity>
       </a-entity>
   
-      <a-camera shooter="bullets: normal; activeBulletType: normal" click-to-shoot wasd-controls-enabled="false">
+      <a-entity position="0 1.6 0" camera look-controls wasd-controls-enabled="false">
+        <a-entity
+          id="gun"
+          cursor="rayOrigin: mouse"
+          raycaster="objects : #keyboard"
+          proxy-event__daydream="event: trackpaddown; to: #gun; as: triggerdown"
+          proxy-event__shoot="event: triggerdown; to: #gun; as: shoot"
+          proxy-event__shootsound="event: triggerdown; to: #soundShoot; as: shoot"
+          shooter="bulletTypes: normal; activeBulletType: normal"
+          position="0.07 -0.1 -0.15"
+          rotation="0 5 0"
+          click-to-shoot>
+          <a-entity supercraft-thing="from: #supercraftThings; name: thing30; resetOrigin: true; ignorePosition: true" rotation="0 5 0" position="0 0 -0.03"></a-entity>
+          <a-entity id="soundShoot" sound="src: #soundShoot; poolSize: 10; on: shoot; volume: 0.6"></a-entity>
+        </a-entity>
         <a-text id="time2" value="Time: 30" position="-0.2 0.7 -1" color="white" anchor="left" width="2" resize-text in-vr timer-countdown></a-text>
         <a-text id="score2" value="Score: 0" position="-0.2 -0.7 -1" color="white" anchor="left" width="2" resize-text in-vr></a-text>
-      </a-camera>
+      </a-entity>
       <!-- Environment. -->
       <a-entity environment="preset: forest; skyColor: #17acbd; horizonColor: #fbc173; lighting: point; lightPosition: -1.2 1 -0.55; fog: 0.799; flatShading: true; playArea: 0.89; ground: hills; groundYScale: 21.3; groundColor: #385f3c; groundColor2: #3f6943; dressing: stones; dressingAmount: 300; dressingColor: #576037; dressingScale: 0.13; dressingVariance: 0.08 0.01 0.1; dressingOnPlayArea: 1"></a-entity>
       <a-entity light="color:#A2A5AF; intensity:0.1" position="-1.93 2.781 -2.322"></a-entity>
+      <a-entity id="keyboard" super-keyboard="hand: #gun; imagePath:asset/images/; maxLength:3; filters:allupper; font:roboto; show:false;" position="0 1.076 -0.5" rotation="-30 0 0"></a-entity>
     </a-scene>
 </body>
 </html>
