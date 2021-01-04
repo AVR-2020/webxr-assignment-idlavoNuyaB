@@ -1,5 +1,5 @@
 # webxr-assignment-idlavoNuyaB
-webxr-assignment-idlavoNuyaB created by GitHub Classroom
+Nama : Bayu Novaldi, NRP: 05111740000085
 
 Free Demo: https://avr-2020.github.io/webxr-assignment-idlavoNuyaB/index.html
 
