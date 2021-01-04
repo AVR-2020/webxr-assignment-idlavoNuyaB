@@ -707,8 +707,34 @@ AFRAME.registerComponent('enemy', {
       delay: 1000;
       easing: easeOutCubic;
       startEvents: in`);
-      this.random = Math.floor((Math.random()*2)+1);
+    } else if(this.data.type == 2){
+      if(this.random == 1){
+        this.showingPos = this.hidingPos + lift;
+      } else {
+        this.showingPos = (2 * this.hidingPos) + lift;
+      }
+      el.setAttribute('animation__out',
+      `property: position;,
+      from: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
+      to: ${el.object3D.position.x} ${this.showingPos} ${el.object3D.position.z};
+      dur: ${time};
+      easing: easeOutElastic;
+      startEvents: out`);
+
+    el.setAttribute('animation__in',
+      `property: position;,
+      from: ${el.object3D.position.x} ${this.showingPos} ${el.object3D.position.z};
+      to: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
+      dur: 200;
+      delay: 1000;
+      easing: easeOutCubic;
+      startEvents: in`);
     } else {
+      if(this.random == 1){
+        this.showingPos = this.hidingPos + lift;
+      } else {
+        this.showingPos = (7 * this.hidingPos) + lift;
+      }
       el.setAttribute('animation__out',
       `property: position;,
       from: ${el.object3D.position.x} ${this.hidingPos} ${el.object3D.position.z};
@@ -726,6 +752,7 @@ AFRAME.registerComponent('enemy', {
       easing: easeOutCubic;
       startEvents: in`);
     }
+    this.random = Math.floor((Math.random()*2)+1);
     el.emit('out');
   },
 
